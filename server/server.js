@@ -17,10 +17,12 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 //Mongoose set up
 mongoose = require("mongoose");
-mongoose.connect("mongodb://localhost/TechFairLaHack");
+mongoose.connect("mongodb://localhost/OpenCode");
 
 //Express Router
-app.use(require("./routes/routes"));
+app.use(require("./routes/task"));
+app.use(require("./routes/user"));
+app.use(require("./routes/project"));
 
 //Seed
 let seed = require('./seed/seed');

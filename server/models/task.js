@@ -16,7 +16,7 @@ let taskSchema = new mongoose.Schema({
 	},
 	private: {
 		type: Boolean,
-		default: true,
+		default: false,
 	},
 	deadline: {
 		type: Date,
