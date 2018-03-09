@@ -4,10 +4,10 @@ let mongoose = require('mongoose');
 //Schema
 let projectSchema = new mongoose.Schema({
 	name: String,
-	tasks: {
+	tasks: [{
 		type: mongoose.Schema.Types.ObjectId,
 		ref: "Task",
-	},
+	}],
 	environment: String,
 	completed: {
 		type: Boolean,

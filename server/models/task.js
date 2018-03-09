@@ -2,6 +2,8 @@
 let mongoose = require('mongoose');
 
 //Schema
+
+
 let taskSchema = new mongoose.Schema({
 	name: String,
 	completed: {
@@ -14,7 +16,7 @@ let taskSchema = new mongoose.Schema({
 	},
 	private: {
 		type: Boolean,
-		default: false,
+		default: true,
 	},
 	deadline: {
 		type: Date,

@@ -14,73 +14,8 @@ userData = [{
   },
   {
     name: "Hanif"
-  }
+  },
 ]
-
-function sketch(project) {
-  Task.create({
-    description: "Create a landing page from mockup UI",
-    private: false,
-    active: true, //shouldn't be though
-    name: "Create landing page",
-    project: project._id,
-  }, function(error, taskMockUp) {
-    if (error) {
-      // console.log(error);
-    } else {
-      Task.create({
-        description: "Translate mockup to front end code",
-        private: false,
-        active: true, //shouldn't be though
-        name: "MockUp To Front End Code",
-        project: project._id,
-      }, function(error, taskFrontEnd) {
-        // console.log(taskMockUp,taskFrontEnd);
-
-        if (error) {
-          // console.log(error);
-        } else {
-          taskFrontEnd.update({
-            $push: {
-              childTasks: taskMockUp._id
-            }
-          }, function(error, taskFrontEnd) {
-            // console.log(taskMockUp,taskFrontEnd);
-
-            if (error) {
-              // console.log(error);
-            } else {
-              // console.log(taskMockUp,taskFrontEnd);
-
-              taskMockUp.update({
-                $push: {
-                  parentTasks: taskFrontEnd._id,
-                }
-              }, function(error, taskMockUp) {
-                if (error) {
-                  // console.log(error);
-                } else {
-                  project.update({
-                    $push: {
-                      tasks: taskFrontEnd._id,
-                    }
-                  }, function(error, project) {
-                    if (error) {
-                      // console.log(error);
-
-                    } else {
-                      // console.log(project);
-                    }
-                  })
-                }
-              })
-            }
-          });
-        }
-      });
-    }
-  });
-}
 
 const seedDB = () => {
   Project.create({
@@ -91,39 +26,95 @@ const seedDB = () => {
     tags: ["MERN stack", "HR Solution", "Employment accessibility"],
   }, function(error, project) {
     if (error) {
-      // console.log(error);
+      console.log(error);
     } else {
       User.create({
         name: "Paul Allen",
       }, function(error, creater) {
         if (error) {
-          // console.log(error);
+          console.log(error);
         } else {
           project.creater = creater._id;
           project.save(function(error, project) {
             if (error) {
-              // console.log(error);
+              console.log(error);
             } else {
               userData.forEach(function(user) {
                 User.create(user, function(error, user) {
                   if (error) {
-                    // console.log(error);
+                    console.log(error);
                   } else {
-                    project.update({
-                      $push: {
-                        contributors: user,
-                      } }  ,    {safe: true, upsert: true},
-                    function(error, project) {
-                      if (error) {
-                        // console.log(error)                      
-                      } else {
-                      	console.log(project);
-                      }
-                    })
+                    project.contributors.push(user._id);
+                    project.save(
+                      function(error, project) {
+                        if (error) {
+                          console.log(error)
+                        } else {}
+                      });
                   }
                 });
               });
-              sketch(project);
+              Task.create({
+                name: "Create Landing Page"
+                description: "Create a landing page from mockup UI using HTML, CSS and JS",
+                active: false, //shouldn't be though
+                project: project._id,
+              }, function(error, taskMockUp) {
+                if (error) {
+                  console.log(error);
+                } else {
+                  Task.create({
+                    name: "Design Mockup UI",
+                    description: "Create mockup UI for the web application, that meets the spec.",
+                    active: true, //shouldn't be though
+                    project: project._id,
+                  }, function(error, taskFrontEnd) {
+                    if (error) {
+                      console.log(error);
+                    } else {
+                      taskFrontEnd.childTasks.push(taskMockUp._id);
+                      taskFrontEnd.save();
+                      taskMockUp.parentTasks.push(taskFrontEnd._id);
+                      taskMockUp.save();
+                      project.tasks.push(taskFrontEnd._id);
+                      Task.create({
+                        name: "Code Frontend Logic",
+                        description: "Code frontend logic and client side interactions",
+                        active: false,
+                        project: project._id,
+                      }, function(error, frontEndLogic){
+                        if (!error){
+                          frontEndLogic.childTasks.push(taskMockUp._id);
+                          frontEndLogic.save();
+                          project.tasks.push(frontEndLogic._id);
+                          frontEndLogic.save();
+                          Task.create({
+                            name: "Backend API",
+                            description: "Make a backend Rest API with ExpressJS and MongoDB",
+                            active: true,
+                            project: project._id,
+                          }, function (error, api){
+                            if (!error){
+                              project.tasks.push(api._id);
+                              project.save();
+                              Task.create({
+                                name: "Setup DB",
+                                description: "Set up database using MongoDB and WiredTiger engine",
+                                active: true,
+                              }, function (error, db){
+                                if (!error){
+                                  project.tasks.push(db._id);
+                                  project.save();
+                                }
+                              })
+                            }
+                          });
+                        }
+                      });
+                    }
+                  });
+                }
+              });
             }
           });
         }
