@@ -1,0 +1,9 @@
+# match JavaScript and JSON files
+[*.{js,json}]
+indent_style = space
+indent_size = 2
+
+# match GraphQL literal files
+[*.{gql,graphql}]
+indent_style = space
+indent_size = 2
