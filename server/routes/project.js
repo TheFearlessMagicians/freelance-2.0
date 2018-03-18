@@ -9,39 +9,45 @@ let Project = require('../models/project');
 let Task = require('../models/task');
 let User = require('../models/user');
 
-//Deep population:
-const deepPopulate = (task) => {
-	task.populate
+const deepPopulateTask = (task) => {
+  if (task.childTasks.length == 0)
+    return task;
+  for (let i = 0; i < task.childTasks.length; i++) {
+    Task.findById(task.childTasks[i]).lean().exec(function(error, childTask) {
+        if (error) {
+            console.log(error);
+        }
+        else {
+            task.childTasks[i] = deepPopulateTask(childTask);
+            console.log("After recursive call", task);
+        }
+    });
+  }
+  console.log("Before return" , task);
+  return task;
+}
+
+/*Deep population:*/
+const deepPopulateProjectJSON = (projectJSON) => {
+  for (let i = 0; i < projectJSON.tasks.length; i++) {
+    projectJSON.tasks[i] = deepPopulateTask(projectJSON.tasks[i]);
+  }
+  return projectJSON;
 }
 
 
 router.get("/project", function(req, res) {
-  Project.findOne({}, function(error, project) {
-    if (error) {
-      console.log(error)
-    } else {
-      Project.findOne({}, function(error,project) {
-        if (error) {
-          console.log(error);
+    Project.findOne({}, function (error, project) {
+         if (error) {
+             console.log(error);
+         }
+     }).populate('tasks').lean().exec(function (error, projectJSON) {
+        if (!error) {
+            res.send(deepPopulateProjectJSON(projectJSON));
         } else {
-        	// project.deepPopulate('tasks', function(error, project){
-        	// 	if (error){
-        	// 		console.log(error);
-        	// 	} else {
-        	// 		res.send(project);
-        	// 	}
-        	// });
+            console.log(error)
         }
-      }).populate('tasks').exec(function(error, project) {
-        if (error) {
-          console.log(error)
-        } else {
-
-          res.json(project);
-        }
-      });
-    }
+    });
   });
-});
 
 module.exports = router;

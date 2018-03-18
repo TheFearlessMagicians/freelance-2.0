@@ -1,9 +1,10 @@
 //Mongoose set up
 let mongoose = require('mongoose');
 
+//Deep population
+let deepPopulate = require('mongoose-deep-populate')(mongoose);
+
 //Schema
-
-
 let taskSchema = new mongoose.Schema({
 	name: String,
 	completed: {
@@ -29,11 +30,11 @@ let taskSchema = new mongoose.Schema({
 	},
 	childTasks: [{
 		type: mongoose.Schema.Types.ObjectId,
-		ref: "Task",
+		ref: "Task"
 	}],
 	parentTasks: [{
 		type: mongoose.Schema.Types.ObjectId,
-		ref: "Task",
+		ref: "Task"
 	}],
 	contributors: [{
 		type: mongoose.Schema.Types.ObjectId,
@@ -42,7 +43,13 @@ let taskSchema = new mongoose.Schema({
 	created: {
 		type: Date,
 		default: Date.now,
-	},
+	}
+});
+
+taskSchema.plugin(deepPopulate, {
+	whitelist: [
+    'childTasks',
+  	]
 });
 
 module.exports = mongoose.model("Task",taskSchema)

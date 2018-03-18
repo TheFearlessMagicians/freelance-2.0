@@ -17,7 +17,7 @@ router.get("/task", function (req,res){
 	Task.find({
 		private: false,
 		active: true,
-	}, function (error, tasks){
+	}).lean().exec(function (error, tasks){
 		if (!error){
 			res.json(tasks);
 		}

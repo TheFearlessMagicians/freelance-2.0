@@ -55,7 +55,10 @@ const seedDB = () => {
                                   function(error, project) {
                                     if (error) {
                                       console.log(error)
-                                    } else {}
+                                    } else {
+                                      user.projects.push(project._id);
+                                      user.save();
+                                    }
                                   });
                               }
                             });
@@ -65,7 +68,7 @@ const seedDB = () => {
                             description: "Create a landing page from mockup UI using HTML, CSS and JS",
                             active: false, //shouldn't be though
                             project: project._id,
-                          }, function(error, taskMockUp) {
+                          }, function(error, taskFrontEnd) {
                             if (error) {
                               console.log(error);
                             } else {
@@ -74,7 +77,7 @@ const seedDB = () => {
                                 description: "Create mockup UI for the web application, that meets the spec.",
                                 active: true, //shouldn't be though
                                 project: project._id,
-                              }, function(error, taskFrontEnd) {
+                              }, function(error, taskMockUp) {
                                 if (error) {
                                   console.log(error);
                                 } else {
@@ -111,6 +114,21 @@ const seedDB = () => {
                                             if (!error) {
                                               project.tasks.push(db._id);
                                               project.save();
+                                              Task.create({
+                                                name: "Start",
+                                                description: "start",
+                                                active: true,
+                                                project: project._id,
+                                              }, function(error, start) {
+                                                if (!error) {
+                                                  project.tasks.push(db._id);
+                                                  project.save();
+                                                  taskMockUp.childTasks.push(start._id);
+                                                  start.parentTasks.push(taskMockUp._id);
+                                                  taskMockUp.save();
+                                                  start.save();
+                                                }
+                                              })
                                             }
                                           })
                                         }

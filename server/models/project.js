@@ -1,9 +1,6 @@
 //Mongoose set up
 let mongoose = require('mongoose');
 
-//Deep population
-let deepPopulate = require('mongoose-deep-populate')(mongoose);
-
 //Schema
 let projectSchema = new mongoose.Schema({
 	name: String,
@@ -33,9 +30,4 @@ let projectSchema = new mongoose.Schema({
 	},
 });
 
-projectSchema.plugin(deepPopulate, {
-	whitelist: [
-    'tasks',
-  	]
-});
 module.exports = mongoose.model("Project",projectSchema)
