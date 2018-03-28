@@ -9,45 +9,50 @@ let Project = require('../models/project');
 let Task = require('../models/task');
 let User = require('../models/user');
 
-const deepPopulateTask = (task) => {
-  if (task.childTasks.length == 0)
-    return task;
-  for (let i = 0; i < task.childTasks.length; i++) {
-    Task.findById(task.childTasks[i]).lean().exec(function(error, childTask) {
-        if (error) {
-            console.log(error);
-        }
-        else {
-            task.childTasks[i] = deepPopulateTask(childTask);
-            console.log("After recursive call", task);
-        }
-    });
-  }
-  console.log("Before return" , task);
-  return task;
+const projectError = { 
+  "error": "Project not found"
 }
 
-/*Deep population:*/
-const deepPopulateProjectJSON = (projectJSON) => {
-  for (let i = 0; i < projectJSON.tasks.length; i++) {
-    projectJSON.tasks[i] = deepPopulateTask(projectJSON.tasks[i]);
-  }
-  return projectJSON;
-}
+//Deepopulation
+// const deepPopulateTask = (task) => {
+//   if (task.childTasks.length == 0){
+//     return task;
+//   }
+//   for (let i = 0; i < task.childTasks.length; i++){
+//     Task.findById(task.childTasks[i], function(error, found){
+//       if (!error){
+//         task.childTasks[i] = deepPopulateTask(found);
+//       }
+//     });
+//   }
+//   return task;
+// }
 
-
-router.get("/project", function(req, res) {
-    Project.findOne({}, function (error, project) {
-         if (error) {
-             console.log(error);
-         }
-     }).populate('tasks').lean().exec(function (error, projectJSON) {
-        if (!error) {
-            res.send(deepPopulateProjectJSON(projectJSON));
-        } else {
-            console.log(error)
-        }
-    });
+router.get("/projects", function(req, res) {
+  Project.find({}).populate('tasks').lean().exec(function (error, projects) {
+      if (error) {
+        console.log(error)
+      } else {
+        // for (let i = 0; i < project.tasks.length; i++) {
+        //   project.tasks[i] = deepPopulateTask(project.tasks[i]);
+        // }
+        res.json(projects);
+      }
   });
+});
+
+router.get("/project", function (req,res){
+  if(req.query.id != null){
+    Project.findById(req.query.id).populate('tasks').lean().exec(function (error, project){
+        if (error || project == null){
+          res.send(projectError);
+        } else {
+          res.json(project);
+        }
+    });
+  } else {
+    res.send(projectError);
+  }
+});
 
 module.exports = router;

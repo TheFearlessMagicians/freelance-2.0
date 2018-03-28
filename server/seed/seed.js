@@ -128,9 +128,9 @@ const seedDB = () => {
                                                   taskMockUp.save();
                                                   start.save();
                                                 }
-                                              })
+                                              });
                                             }
-                                          })
+                                          });
                                         }
                                       });
                                     }
